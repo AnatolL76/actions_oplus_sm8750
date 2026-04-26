@@ -981,16 +981,159 @@ jobs:
           COMMIT_HASH=$(echo "${{ github.sha }}" | cut -c1-8)
           REPO_URL="https://github.com/${{ github.repository }}"
 
+          # ── Telegra.ph ────────────────────────────────────────────────────
+          TELEGRAPH_URL=""
+          if [ "$BUILD_STATUS" = "success" ]; then
+            export TG_KERNEL_VERSION="6.6.127"
+            export TG_KSU_DISPLAY="$KSU_DISPLAY"
+            export TG_KSUVER="$KSUVER"
+            export TG_SUFFIX="$SUFFIX"
+            export TG_LTO="$LTO"
+            export TG_BUILD_NUM="$BUILD_NUM"
+            export TG_TIME_NOW="$TIME_NOW"
+            export TG_RUN_URL="$RUN_URL"
+            export TG_REPO="$REPO"
+            export TG_SUSFS="$SUSFS" TG_KPM="$KPM" TG_BBR="$BBR"
+            export TG_ADIOS="$ADIOS" TG_BBG="$BBG" TG_LZ4="$LZ4"
+            export TG_LZ4KD="$LZ4KD" TG_MM="true" TG_FENGCHI="$FENGCHI" TG_HMBIRD="$HMBIRD"
+            export TG_UFIX="$UFIX" TG_ZWB="$ZWB"
+            export TG_SCHED="$SCHED" TG_CLANG="$CLANG"
+            export TG_CPU_OPT="$CPU_OPT" TG_F2FS="$F2FS" TG_WG="$WG"
+            export TG_LRNG="$LRNG" TG_WLB="$WLB"
+            export TG_NTSYNC="${{ github.event.inputs.ntsync_enable }}"
+            export TG_DROIDSPACES="${{ github.event.inputs.droidspaces_enable }}"
+            export TG_IP_SET="${{ github.event.inputs.ip_set_enable }}"
+            export TG_TTL="${{ github.event.inputs.ttl_enable }}"
+            export TG_MEM_OPT="${{ github.event.inputs.mem_opt_patches }}"
+
+            TELEGRAPH_URL=$(python3 << 'PYEOF'
+          import json, urllib.request, urllib.parse, os
+
+          e = os.environ.get
+
+          def feat(val, name):
+              icon = "✅" if val == "true" else "❌"
+              return {"tag": "li", "children": [f"{icon} {name}"]}
+
+          content = [
+              {"tag": "h3", "children": [f"OnePlus 13 (PJZ110) — palaziks kernel"]},
+              {"tag": "hr"},
+              {"tag": "h4", "children": ["📋 Build Info"]},
+              {"tag": "table", "children": [
+                  {"tag": "tr", "children": [
+                      {"tag": "td", "children": ["Device"]},
+                      {"tag": "td", "children": ["OnePlus 13 PJZ110 (CN) / SM8750"]}
+                  ]},
+                  {"tag": "tr", "children": [
+                      {"tag": "td", "children": ["Kernel"]},
+                      {"tag": "td", "children": [f"{e('TG_KERNEL_VERSION')}-android15"]}
+                  ]},
+                  {"tag": "tr", "children": [
+                      {"tag": "td", "children": ["Manager"]},
+                      {"tag": "td", "children": [f"{e('TG_KSU_DISPLAY')} v{e('TG_KSUVER')}"]}
+                  ]},
+                  {"tag": "tr", "children": [
+                      {"tag": "td", "children": ["Suffix"]},
+                      {"tag": "td", "children": [f"-{e('TG_SUFFIX')}"]}
+                  ]},
+                  {"tag": "tr", "children": [
+                      {"tag": "td", "children": ["LTO"]},
+                      {"tag": "td", "children": [e("TG_LTO")]}
+                  ]},
+                  {"tag": "tr", "children": [
+                      {"tag": "td", "children": ["Clang"]},
+                      {"tag": "td", "children": [e("TG_CLANG")]}
+                  ]},
+                  {"tag": "tr", "children": [
+                      {"tag": "td", "children": ["Build #"]},
+                      {"tag": "td", "children": [e("TG_BUILD_NUM")]}
+                  ]},
+                  {"tag": "tr", "children": [
+                      {"tag": "td", "children": ["Time"]},
+                      {"tag": "td", "children": [e("TG_TIME_NOW")]}
+                  ]},
+              ]},
+              {"tag": "hr"},
+              {"tag": "h4", "children": ["⚡ Features"]},
+              {"tag": "ul", "children": [
+                  feat(e("TG_SUSFS"),   "SuSFS"),
+                  feat(e("TG_KPM") != "false" and "true" or "false", f"KPM ({e('TG_KPM')})"),
+                  feat(e("TG_BBR") != "false" and "true" or "false", f"BBR/Brutal ({e('TG_BBR')})"),
+                  feat(e("TG_ADIOS"),   "ADIOS IO Scheduler"),
+                  feat(e("TG_BBG"),     "Baseband Guard"),
+                  feat(e("TG_LZ4"),     "LZ4 1.10.0 + ZSTD 1.5.7"),
+                  feat(e("TG_LZ4KD"),  "LZ4KD ZRAM"),
+                  feat(e("TG_MM"),      "Multi-Manager Support"),
+                  feat(e("TG_FENGCHI"),"Fengchi Optimization"),
+                  feat(e("TG_HMBIRD"), "HMBIRD SCX Scheduler"),
+                  feat(e("TG_UFIX"),    "Unicode Bypass Fix"),
+                  feat(e("TG_ZWB"),     "ZRAM Writeback"),
+                  feat(e("TG_SCHED"),  "SchedUtil Optimizations"),
+                  feat(e("TG_CPU_OPT"),"Oryon CPU Optimizations"),
+                  feat(e("TG_F2FS"),   "F2FS Optimizations"),
+                  feat(e("TG_WG"),     "WireGuard VPN"),
+                  feat(e("TG_LRNG"),   "LRNG v59"),
+                  feat(e("TG_WLB"),    "Wakelock Blocker"),
+                  feat(e("TG_NTSYNC"),     "NTSync (NT sync primitives)"),
+                  feat(e("TG_DROIDSPACES"),"Droidspaces (proot-distro support)"),
+                  feat(e("TG_IP_SET"),     "IP_SET + IPv6 NAT"),
+                  feat(e("TG_TTL"),        "TTL/HL Target (hide tethering)"),
+                  feat(e("TG_MEM_OPT"),    "Memory & Scheduler Optimizations"),
+              ]},
+              {"tag": "hr"},
+              {"tag": "h4", "children": ["📥 Installation"]},
+              {"tag": "ol", "children": [
+                  {"tag": "li", "children": ["Flash AnyKernel3 zip via TWRP or KernelFlasher"]},
+                  {"tag": "li", "children": ["Install metamodule: mountify / meta-overlayfs / meta-magicmount"]},
+                  {"tag": "li", "children": ["For GKI: patch init_boot with your KSU manager, then fastboot flash init_boot"]},
+              ]},
+              {"tag": "hr"},
+              {"tag": "p", "children": [
+                  {"tag": "a", "attrs": {"href": e("TG_RUN_URL")}, "children": ["🔗 GitHub Actions Run"]},
+                  "  |  ",
+                  {"tag": "a", "attrs": {"href": f"https://github.com/{e('TG_REPO')}"}, "children": [f"📦 {e('TG_REPO')}"]},
+              ]},
+              {"tag": "p", "children": [f"Built by @palaziks"]},
+          ]
+
+          data = {
+              "access_token": os.environ.get("TELEGRAPH_TOKEN", ""),
+              "title": f"palaziks kernel — OP13 {e('TG_KERNEL_VERSION')}-{e('TG_SUFFIX')} #{e('TG_BUILD_NUM')}",
+              "author_name": "palaziks",
+              "author_url": f"https://github.com/{e('TG_REPO')}",
+              "content": json.dumps(content),
+              "return_content": "false"
+          }
+
+          req = urllib.request.Request(
+              "https://api.telegra.ph/createPage",
+              data=urllib.parse.urlencode(data).encode(),
+              method="POST"
+          )
+          try:
+              with urllib.request.urlopen(req, timeout=15) as resp:
+                  result = json.load(resp)
+                  if result.get("ok"):
+                      print(result["result"]["url"])
+                  else:
+                      import sys
+                      print(f"telegra.ph error: {result}", file=sys.stderr)
+                      print("")
+          except Exception as ex:
+              import sys
+              print(f"telegra.ph exception: {ex}", file=sys.stderr)
+              print("")
+          PYEOF
+          )
+          fi
+
           CAPTION="✅ <b>SukiSU Ultra Build Successful!</b>
 
           ⚡ <b>Device:</b> <code>OnePlus 13</code>
           📅 <b>Date:</b> $DATE
           📝 <b>Commit:</b> <code>$COMMIT_MSG</code>
           🔢 <b>Hash:</b> <a href=\"$REPO_URL/commit/${{ github.sha }}\">$COMMIT_HASH</a>
-          🔧 <b>NTSync:</b> ${{ github.event.inputs.ntsync_enable }}
-          💻 <b>Droidspaces:</b> ${{ github.event.inputs.droidspaces_enable }}
-          🧱 <b>IP_SET+NAT6:</b> ${{ github.event.inputs.ip_set_enable }}
-          🌐 <b>TTL:</b> ${{ github.event.inputs.ttl_enable }}"
+          🔧 <b>Kernel features:</b> <a href=\"$TELEGRAPH_URL\">Read on Telegra.ph</a>"
 
           ZIP_PATH=$(ls ${{ github.workspace }}/kernel_workspace/AnyKernel*.zip | head -n 1)
           curl -s -X POST "https://api.telegram.org/bot$TELEGRAM_TOKEN/sendDocument" \
